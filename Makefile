@@ -7,15 +7,18 @@ CFLAGS := -std=gnu17 $(CFLAGS)
 all: $(ALL)
 
 rtcctl: $(RTCCTL_O) *.h
-	cc $(CFLAGS) -o $@ $(RTCCTL_O)
+	$(CC) $(CFLAGS) -o $@ $(RTCCTL_O)
 
 rtcd: $(RTCD_O) *.h
-	cc $(CFLAGS) -o $@ $(RTCD_O)
+	$(CC) $(CFLAGS) -o $@ $(RTCD_O)
 
 .o:
 	$(CC) $(CFLAGS) $@.c $(LDFLAGS) -o $@
 
-.PHONY: clean
+.PHONY: clean cleanartifacts
 
 clean:
-	rm -rf $(ALL) *.o
+	rm -f $(ALL) *.o
+
+cleanartifacts:
+	rm -f *.zip
