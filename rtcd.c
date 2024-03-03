@@ -14,6 +14,10 @@
 
 static void print_help();
 
+static inline time_t ttabs(time_t v) {
+	return v >= 0 ? v : -v;
+}
+
 int main(int argc, const char ** argv) {
 	const char * dev = DEF_RTC_PATH;
 	int interval = DEF_INT;
@@ -52,12 +56,11 @@ int main(int argc, const char ** argv) {
 			warn("Error reading RTC time");
 			continue;
 		}
-		time_t rtc_localtime = utc_to_localtime_epoch(mktime(&rtc_tm));
+		time_t rtctime = timegm(&rtc_tm);
 		time_t systime = read_sys_time();
-		if (((rtc_localtime < systime) && (systime - rtc_localtime > MAX_DELTA)) ||
-			((rtc_localtime > systime) && (rtc_localtime - systime > MAX_DELTA))) {
+		if (ttabs(rtctime - systime) > MAX_DELTA) {
 			puts("System time differ from RTC time. Synching.");
-			set_system_time_from_utc(mktime(&rtc_tm));
+			set_system_time_from_utc(rtctime);
 		}
 	}
 }

@@ -86,15 +86,12 @@ static void read_rtc_time_i(const char * dev, struct tm * time, time_t * epoch) 
 	if (read_rtc_time(fd, time) < 0) {
 		err(1, "Error reading RTC");
 	}
-	*epoch = mktime(time);
+	*epoch = timegm(time);
 }
 
 static void read_sys_time_i(struct tm * time, time_t * epoch) {
 	*epoch = read_sys_time();
-	struct timespec ts = {
-		.tv_sec = *epoch
-	};
-	localtime_r(&ts.tv_sec, time);
+	gmtime_r(epoch, time);
 }
 
 void print_help() {
