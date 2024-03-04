@@ -23,7 +23,7 @@ static inline time_t utc_to_localtime_epoch(time_t epoch) {
 
 static inline int set_system_time_from_utc(time_t epoch) {
 	struct timespec tv = {
-		.tv_sec = utc_to_localtime_epoch(epoch)
+		.tv_sec = epoch
 	};
 	return clock_settime(CLOCK_REALTIME, &tv);
 }

@@ -58,9 +58,15 @@ int main(int argc, const char ** argv) {
 		}
 		time_t rtctime = timegm(&rtc_tm);
 		time_t systime = read_sys_time();
-		if (ttabs(rtctime - systime) > MAX_DELTA) {
-			puts("System time differ from RTC time. Synching.");
-			set_system_time_from_utc(rtctime);
+		time_t time_delta = rtctime - systime;
+
+		if (ttabs(time_delta) > MAX_DELTA) {
+			printf("System time is %s from RTC time by %ld seconds. Synching.\n",
+				time_delta > 0 ? "behind" : "ahead",
+				ttabs(time_delta));
+			if (set_system_time_from_utc(rtctime) < 0) {
+				warn("Error setting system time");
+			}
 		}
 	}
 }
