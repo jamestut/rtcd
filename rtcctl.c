@@ -71,7 +71,7 @@ int main(int argc, const char ** argv) {
 	printf("epoch = %lu\n", epoch);
 
 	if (set_system_time) {
-		if (!set_system_time_from_utc(epoch) < 0) {
+		if (set_system_time_from_utc(epoch) < 0) {
 			err(1, "Error setting system time");
 		}
 		puts("Set system time done!");
