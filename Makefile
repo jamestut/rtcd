@@ -20,5 +20,5 @@ rtcd: $(RTCD_O) *.h
 clean:
 	rm -f $(ALL) *.o
 
-cleanartifacts:
+cleanartefacts:
 	rm -f *.zip
