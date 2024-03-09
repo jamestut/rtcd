@@ -4,6 +4,7 @@ import os
 import subprocess
 import multiprocessing
 import itertools
+import argparse
 
 def printr(*args, **kwargs):
     kwargs['file'] = sys.stderr
@@ -18,6 +19,21 @@ if __name__ == '__main__':
     CFLAGS = ['-O2', '-g0']
 
     EXE_NAMES = ['rtcd', 'rtcctl']
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--single', action='store_true',
+        help="If specified, run the 'make' command single-threaded.")
+    ap.add_argument('--verbose-linker', action='store_true',
+        help="Pass '-v' option to the LDFLAGS.")
+    ap.add_argument('targets', nargs='*',
+        help=f'Specify which platforms to build. Supported platforms: {" ".join(TARGETS)}')
+    args = ap.parse_args()
+
+    if args.targets:
+        if not all(i in TARGETS for i in args.targets):
+            printr("One or more of the specified targets are not supported.")
+            sys.exit(1)
+        TARGETS = args.targets
 
     if 'CC' not in os.environ:
         printr('Please specify clang executable in $CC variable.')
@@ -39,7 +55,7 @@ if __name__ == '__main__':
         check=True
     ).stdout
     if not (ld_str.startswith(b'LLD') and b'compatible with GNU linkers' in ld_str):
-        printr('Ensure that $LD is ld.lld.')
+        printr('Ensure that system ld is lld.')
         sys.exit(1)
 
     # ensure the sysroots are specified
@@ -57,10 +73,12 @@ if __name__ == '__main__':
         exit(1)
 
     make_env = os.environ.copy()
-    make_env['LDFLAGS'] = '--rtlib=compiler-rt'
+    ldflags = ['--rtlib=compiler-rt']
+    if args.verbose_linker:
+        ldflags.append('-v')
+    make_env['LDFLAGS'] = ' '.join(ldflags)
 
-    nproc = multiprocessing.cpu_count()
-    nproc = 1
+    nproc = 1 if args.single else multiprocessing.cpu_count()
     nproc = str(nproc)
 
     subprocess.run(['make', 'cleanartefacts'], check=True)
