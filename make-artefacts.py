@@ -40,11 +40,13 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # check that $CC is actually clang
-    if not subprocess.run(
+    sp = subprocess.run(
         [os.environ['CC'], '--version'],
         stdout=subprocess.PIPE,
         check=True
-    ).stdout.startswith(b'clang'):
+    )
+    cc_version = sp.stdout.splitlines()[0]
+    if b'clang' not in cc_version:
         printr('Ensure that $CC is clang.')
         sys.exit(1)
 
@@ -54,7 +56,7 @@ if __name__ == '__main__':
         stdout=subprocess.PIPE,
         check=True
     ).stdout
-    if not (ld_str.startswith(b'LLD') and b'compatible with GNU linkers' in ld_str):
+    if not (b'LLD' in ld_str and b'compatible with GNU linkers' in ld_str):
         printr('Ensure that system ld is lld.')
         sys.exit(1)
 
